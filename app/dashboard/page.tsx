@@ -6,19 +6,61 @@ import Card from "../../components/ui/Card";
 import IconButton from "../../components/ui/IconButton";
 import CreateBotModal from "../../components/ui/CreateBotModal";
 
+// Sample bot data - will be replaced with real data from backend
+interface Bot {
+  id: string;
+  name: string;
+  status: "active" | "inactive";
+  messages: number;
+  lastActive: string;
+  isPublic: boolean;
+}
+
 export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  
+  // Sample bots - this will come from your database later
+  const [bots, setBots] = useState<Bot[]>([
+    {
+      id: "1",
+      name: "Rhode Island Helper",
+      status: "active",
+      messages: 1234,
+      lastActive: "2 hours ago",
+      isPublic: true,
+    },
+    {
+      id: "2",
+      name: "Neighborhood Assistant",
+      status: "active",
+      messages: 856,
+      lastActive: "5 hours ago",
+      isPublic: false,
+    },
+  ]);
+
+  // User stats
+  const userStats = {
+    totalBots: bots.length,
+    totalMessages: bots.reduce((sum, bot) => sum + bot.messages, 0),
+    activeBots: bots.filter((bot) => bot.status === "active").length,
+    planType: "Pro",
+  };
 
   const handleCreateBot = (botName: string, isPublic: boolean) => {
-    // TODO: Implement bot creation logic
+    // Create new bot and add to list
+    const newBot: Bot = {
+      id: Date.now().toString(),
+      name: botName,
+      status: "active",
+      messages: 0,
+      lastActive: "Just now",
+      isPublic: isPublic,
+    };
+    
+    setBots([...bots, newBot]);
     console.log("Creating bot:", { name: botName, isPublic });
-    // For now, just show an alert
-    alert(
-      `Bot "${botName}" created successfully! (${
-        isPublic ? "Public" : "Private"
-      })`
-    );
   };
 
   return (
@@ -80,7 +122,70 @@ export default function DashboardPage() {
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 overflow-y-auto">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {/* Total Bots */}
+            <Card className="p-6" hover={false}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Total Bots</p>
+                  <h3 className="text-3xl font-bold text-gray-900">
+                    {userStats.totalBots}
+                  </h3>
+                </div>
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">🤖</span>
+                </div>
+              </div>
+            </Card>
+
+            {/* Active Bots */}
+            <Card className="p-6" hover={false}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Active Bots</p>
+                  <h3 className="text-3xl font-bold text-green-600">
+                    {userStats.activeBots}
+                  </h3>
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">✅</span>
+                </div>
+              </div>
+            </Card>
+
+            {/* Total Messages */}
+            <Card className="p-6" hover={false}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Total Messages</p>
+                  <h3 className="text-3xl font-bold text-purple-600">
+                    {userStats.totalMessages.toLocaleString()}
+                  </h3>
+                </div>
+                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">💬</span>
+                </div>
+              </div>
+            </Card>
+
+            {/* Plan Type */}
+            <Card className="p-6" hover={false}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">Current Plan</p>
+                  <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    {userStats.planType}
+                  </h3>
+                </div>
+                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <span className="text-2xl">⭐</span>
+                </div>
+              </div>
+            </Card>
+          </div>
+
           {/* Search Bar */}
           <div className="mb-6">
             <input
@@ -92,24 +197,113 @@ export default function DashboardPage() {
             />
           </div>
 
-          {/* Create New Bot Card */}
-          <div className="mb-8">
-            <Card
-              className="p-6 border-2 border-dashed border-gray-300 hover:border-blue-500 transition-colors cursor-pointer max-w-md"
-              onClick={() => setIsCreateModalOpen(true)}
-            >
-              <div className="flex flex-col items-center justify-center text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                  <span className="text-blue-600 text-2xl">+</span>
+          {/* Bots Section */}
+          <div className="mb-4">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+              Your AI Chatbots
+            </h2>
+
+            {/* Grid of Bots */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Create New Bot Card */}
+              <Card
+                className="p-6 border-2 border-dashed border-gray-300 hover:border-blue-500 transition-colors cursor-pointer"
+                onClick={() => setIsCreateModalOpen(true)}
+              >
+                <div className="flex flex-col items-center justify-center text-center h-full">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                    <span className="text-blue-600 text-3xl">+</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Create New Bot
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Start building your AI chatbot
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Create New Bot
-                </h3>
-                <p className="text-sm text-gray-600 mt-2">
-                  Start building your first AI chatbot
-                </p>
-              </div>
-            </Card>
+              </Card>
+
+              {/* Existing Bots */}
+              {bots
+                .filter((bot) =>
+                  bot.name.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                .map((bot) => (
+                  <Card
+                    key={bot.id}
+                    className="p-6 cursor-pointer hover:border-blue-400"
+                  >
+                    <div className="flex flex-col h-full">
+                      {/* Bot Header */}
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                            <span className="text-white text-xl">🤖</span>
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-gray-900 text-lg">
+                              {bot.name}
+                            </h3>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <span
+                                className={`inline-block w-2 h-2 rounded-full ${
+                                  bot.status === "active"
+                                    ? "bg-green-500"
+                                    : "bg-gray-400"
+                                }`}
+                              ></span>
+                              <span className="text-xs text-gray-600">
+                                {bot.status === "active" ? "Active" : "Inactive"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        {bot.isPublic && (
+                          <span className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full">
+                            Public
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Bot Stats */}
+                      <div className="flex-1">
+                        <div className="space-y-2 text-sm text-gray-600">
+                          <div className="flex items-center justify-between">
+                            <span>Messages:</span>
+                            <span className="font-semibold text-gray-900">
+                              {bot.messages.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span>Last Active:</span>
+                            <span className="font-semibold text-gray-900">
+                              {bot.lastActive}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bot Actions */}
+                      <div className="mt-4 pt-4 border-t border-gray-200 flex space-x-2">
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          className="flex-1 text-sm"
+                        >
+                          Configure
+                        </Button>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="flex-1 text-sm"
+                        >
+                          View Stats
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+            </div>
           </div>
         </div>
       </div>

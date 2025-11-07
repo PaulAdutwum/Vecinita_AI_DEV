@@ -5,6 +5,7 @@ interface CardProps {
   className?: string;
   hover?: boolean;
   darkMode?: boolean;
+  onClick?: () => void;
 }
 
 export default function Card({
@@ -12,6 +13,7 @@ export default function Card({
   className = "",
   hover = true,
   darkMode = false,
+  onClick,
 }: CardProps) {
   const baseClasses = "rounded-xl shadow-lg border transition-all duration-500";
   const hoverClasses = hover ? "hover:shadow-xl hover:scale-105" : "";
@@ -22,6 +24,7 @@ export default function Card({
   return (
     <div
       className={`${baseClasses} ${hoverClasses} ${darkClasses} ${className}`}
+      onClick={onClick}
     >
       {children}
     </div>
